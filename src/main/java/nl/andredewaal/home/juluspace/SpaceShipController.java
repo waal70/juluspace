@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 public class SpaceShipController implements SpaceShipEvent {
 	private static Logger log = Logger.getLogger(SpaceShipController.class);
 	
+	@SuppressWarnings("unused")
 	private ArduinoListener al = null;
 	private ArduinoListenerWIN alw = null;
 	private boolean busy = true;
@@ -48,16 +49,17 @@ public class SpaceShipController implements SpaceShipEvent {
 	}
 	private void kickOffSoundThread() {
 		SpaceShipSound sss = new SpaceShipSound();
-		sss.start();
-		while (sss.isPlaying())
-		{
-			try {
-				Thread.sleep(50);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		Thread t = new Thread(sss);
+		t.start();
+		try {
+			t.join(sss.getSleepTime());
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+			
+
+
 	}
 	
 	public boolean isBusy()

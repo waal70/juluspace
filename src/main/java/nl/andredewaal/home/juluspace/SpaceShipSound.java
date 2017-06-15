@@ -25,10 +25,9 @@ import org.apache.log4j.Logger;
  */
 public class SpaceShipSound implements Runnable {
 	private static Logger log = Logger.getLogger(SpaceShipSound.class);
-	private String soundFileName = "E:\\CODE\\EclipseWorkspaces\\juluspace\\src\\main\\resources\\commopen.wav"; 
+	private String soundFileName = "E:\\CODE\\EclipseWorkspaces\\juluspace\\src\\main\\resources\\commopen.wav";
 	private int numberIterations = 1;
-	private Thread t;
-	private boolean busy = true;
+	private long playTime = 1000;
 	/**
 	 * 
 	 */
@@ -36,17 +35,18 @@ public class SpaceShipSound implements Runnable {
 		// TODO Auto-generated constructor stub
 	}
 	
+	public long getSleepTime()
+	{
+		return playTime * numberIterations;
+	}
+
 	public SpaceShipSound(String fileToPlay) {
 		soundFileName = fileToPlay;
 	}
+
 	public SpaceShipSound(String fileToPlay, int repetitions) {
 		soundFileName = fileToPlay;
 		numberIterations = repetitions;
-	}
-
-	public boolean isPlaying()
-	{
-		return busy;
 	}
 
 	@Override
@@ -54,20 +54,10 @@ public class SpaceShipSound implements Runnable {
 		log.debug("Sound Thread started.");
 		log.debug("Instructed to do " + numberIterations + " iterations.");
 
-		for (int i = 0;i < numberIterations;i++)
-		{
+		for (int i = 0; i < numberIterations; i++) {
 			playSound();
 		}
 		log.debug("Completed");
-		busy=false;
-	}
-	public void start() {
-		log.debug("Thread start");
-		if (t==null)
-		{
-			t=new Thread (this);
-			t.start();
-		}
 	}
 
 	public void playSound() {
@@ -100,7 +90,8 @@ public class SpaceShipSound implements Runnable {
 			FloatControl volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
 			volumeControl.setValue(-40.0f); // Reduce volume by 10 decibels.
 			clip.start();
-			Thread.sleep(clip.getMicrosecondLength());
+			playTime = clip.getMicrosecondLength();
+			Thread.sleep(playTime);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			log.error(e.getLocalizedMessage());
