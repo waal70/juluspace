@@ -38,7 +38,6 @@ import com.pi4j.util.CommandArgumentParser;
 import com.pi4j.util.Console;
 
 import java.io.IOException;
-import java.util.Date;
 
 /**
 * This example code demonstrates how to perform serial communications using the Raspberry Pi.

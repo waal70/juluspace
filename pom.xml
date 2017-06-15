@@ -33,7 +33,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>nl.andredewaal.home.juluspace.spaceShipMain</mainClass>
+							<mainClass>nl.andredewaal.home.juluspace.SpaceShipSound</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>
