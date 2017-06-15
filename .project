@@ -26,11 +26,4 @@
 		<nature>org.eclipse.m2e.core.maven2Nature</nature>
 		<nature>org.eclipse.wst.common.project.facet.core.nature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>ArduinoCode</name>
-			<type>2</type>
-			<location>E:/CODE/ArduinoCode</location>
-		</link>
-	</linkedResources>
 </projectDescription>
