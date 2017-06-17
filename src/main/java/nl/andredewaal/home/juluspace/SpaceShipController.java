@@ -38,6 +38,8 @@ public class SpaceShipController implements SpaceShipEvent {
 		else
 			kickOffSoundThread(Consts.SND_COMM_CHIRP_OPEN);
 		
+		if (globalCounter ==2) new QuindarTone().intro();
+		if (globalCounter ==3) new QuindarTone().outro();
 		globalCounter++;
 
 		if (globalCounter > 7)
@@ -61,6 +63,7 @@ public class SpaceShipController implements SpaceShipEvent {
 		log.debug("Flag BUSY set to FALSE");
 		myclips.clear();
 		log.debug("Cleared the backlog of soundfiles");
+		new QuindarTone().outro();
 	}
 
 	private void kickOffSoundThread(String soundName) {

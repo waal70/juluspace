@@ -25,6 +25,7 @@ public class SpaceShipMain {
 	public static synchronized void main(String[] args) throws IOException {
 		initLog4J();
 		log.debug("Spaceship START...");
+		new QuindarTone().intro();
 		URL resource = SpaceShipMain.class.getResource(".");
 		String path = resource.getPath();
 		log.debug("Current context folder is: " + path);
