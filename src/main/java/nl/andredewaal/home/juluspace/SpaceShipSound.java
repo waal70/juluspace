@@ -41,7 +41,8 @@ public class SpaceShipSound {
 		}
 
 	    public Clip play(String filename, boolean autostart, float gain) throws Exception {
-	    	File yourfile = new File(filename);
+	    	
+	    	File yourfile = new File(SpaceShipSound.class.getResource(filename).toURI());
 	    	AudioInputStream stream = AudioSystem.getAudioInputStream(yourfile);
 			AudioFormat format = stream.getFormat();
 	        
