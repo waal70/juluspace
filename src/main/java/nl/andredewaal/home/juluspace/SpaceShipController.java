@@ -78,13 +78,14 @@ public class SpaceShipController implements SpaceShipEvent {
 		}
 
 		SpaceShipSound ps = new SpaceShipSound();
-		try {
-			myclips.add(ps.play(soundName, true, -10.0f));
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+		//Only add the clip if the return is not null:
+		Clip clipToAdd = ps.play(soundName, true, -10.0f);
+		if (clipToAdd != null)
+			myclips.add(clipToAdd);
+		else
+			log.debug("Ignored clip for: " + soundName);
+		
+	
 	}
 
 	public boolean isBusy() {

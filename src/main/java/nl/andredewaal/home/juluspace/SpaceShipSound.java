@@ -18,10 +18,24 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.apache.log4j.Logger;
 
+/**
+ * @author awaal
+ *
+ * This class handles the playing of sound files, primarily on the Raspberry PI, but
+ * it will also handle Windows Systems.
+ */
 public class SpaceShipSound {
 	private static Logger log = Logger.getLogger(SpaceShipSound.class);
 	private Clip clip = null;
 	
+	/**
+	 * @param allClips
+	 * The method will loop through all clips that were loaded for play and checks whether
+	 * any of them are still playing.
+	 * If they are, the method sleeps for TERM_SLEEP_INTERVAL and checks again.
+	 * If the amount estimated to wait is bigger then configured, the method will forcefully stop
+	 * @return false when all sounds have been completed 
+	 */
 	public static boolean endSound(List<Clip> allClips) //Consider this list the backlog of all soundfiles.
 		{
 			// loop through all clips and see if one is still running:
@@ -66,8 +80,13 @@ public class SpaceShipSound {
 				stream = AudioSystem.getAudioInputStream(yourfile);
 			} catch (UnsupportedAudioFileException | IOException e) {
 				log.error(e.getLocalizedMessage());
+				return null;
 			}
+			if (stream == null) return null;
+			
 			AudioFormat format = stream.getFormat();
+			
+			if (format == null) return null;
 	        
 			if (stream.getFormat().getEncoding() != AudioFormat.Encoding.PCM_SIGNED) {
 	            stream = AudioSystem.getAudioInputStream(AudioFormat.Encoding.PCM_SIGNED, stream);
