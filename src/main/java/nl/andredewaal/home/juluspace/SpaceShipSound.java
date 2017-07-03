@@ -1,8 +1,8 @@
 package nl.andredewaal.home.juluspace;
 
-import java.io.File;
+import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.io.InputStream;
 import java.util.List;
 
 import javax.sound.sampled.AudioFormat;
@@ -12,6 +12,7 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.DataLine.Info;
 import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -19,6 +20,7 @@ import org.apache.log4j.Logger;
 
 public class SpaceShipSound {
 	private static Logger log = Logger.getLogger(SpaceShipSound.class);
+	private Clip clip = null;
 	
 	public static boolean endSound(List<Clip> allClips) //Consider this list the backlog of all soundfiles.
 		{
@@ -56,13 +58,10 @@ public class SpaceShipSound {
 	    public Clip play(String soundName, boolean autostart, float gain) {
 	    	
 	    	if (gain == 0) gain=-40.0f;
-	       	File yourfile = null;
-			try {
-				yourfile = new File(SpaceShipSound.class.getResource(soundName).toURI());
-			} catch (URISyntaxException e) {
-				log.error(e.getLocalizedMessage());
-			}
-	    	AudioInputStream stream =null;
+	       	InputStream dumbInputstream = null;
+			dumbInputstream = getClass().getResourceAsStream(soundName);
+			InputStream yourfile = new BufferedInputStream(dumbInputstream);
+		   	AudioInputStream stream =null;
 			try {
 				stream = AudioSystem.getAudioInputStream(yourfile);
 			} catch (UnsupportedAudioFileException | IOException e) {
@@ -74,9 +73,16 @@ public class SpaceShipSound {
 	            stream = AudioSystem.getAudioInputStream(AudioFormat.Encoding.PCM_SIGNED, stream);
 	        }
 			Info info = new DataLine.Info(Clip.class, format);
-			Clip clip = null;
 			try {
 				clip = (Clip) AudioSystem.getLine(info);
+				//Added this to resolve line availability issues on Arduino:
+				clip.addLineListener(event -> 
+				{
+				    if(LineEvent.Type.STOP.equals(event.getType())) {
+				    	log.debug("Closing clip because STOP event received");
+				        clip.close();
+				    }
+				});
 			} catch (LineUnavailableException e) {
 				log.error(e.getLocalizedMessage());
 			}

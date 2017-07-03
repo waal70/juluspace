@@ -5,7 +5,6 @@ package nl.andredewaal.home.juluspace;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -26,9 +25,6 @@ public class SpaceShipMain {
 		initLog4J();
 		log.debug("Spaceship START...");
 		new QuindarTone().intro();
-		URL resource = SpaceShipMain.class.getResource(".");
-		String path = resource.getPath();
-		log.debug("Current context folder is: " + path);
 		// process incoming events from the Arduino through the SpaceShipController
 		SpaceShipController ssc = new SpaceShipController();
 
