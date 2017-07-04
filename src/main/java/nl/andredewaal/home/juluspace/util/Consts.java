@@ -22,6 +22,8 @@ public final class Consts {
 	 * that experience OutOfMemory errors.
 	 */
 	public static final int MAX_CLIP_BACKLOG = 255;
+	public static final int OFF = 0;
+	public static final int ON = 1;
 	
 	public static final boolean FAKE = true;
 	

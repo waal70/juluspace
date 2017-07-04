@@ -17,12 +17,14 @@ import com.pi4j.io.serial.SerialDataEventListener;
 import com.pi4j.io.serial.SerialFactory;
 import com.pi4j.io.serial.StopBits;
 
-import nl.andredewaal.home.juluspace.events.LaunchEvent;
-import nl.andredewaal.home.juluspace.events.ShutdownEvent;
-import nl.andredewaal.home.juluspace.events.SoundEvent;
 import nl.andredewaal.home.juluspace.events.SpaceEvent;
+import nl.andredewaal.home.juluspace.events.complex.LaunchEvent;
+import nl.andredewaal.home.juluspace.events.complex.ShutdownEvent;
+import nl.andredewaal.home.juluspace.events.ops.ButtonPressEvent;
+import nl.andredewaal.home.juluspace.events.ops.MasterCautionPressedEvent;
+import nl.andredewaal.home.juluspace.events.ops.RotaryEncoderEvent;
+import nl.andredewaal.home.juluspace.events.ops.SwitchEvent;
 import nl.andredewaal.home.juluspace.util.Consts;
-import nl.andredewaal.home.juluspace.util.SpaceShipMapping;
 
 class ArduinoCommunicator implements SerialDataEventListener {
 
@@ -92,7 +94,7 @@ class ArduinoCommunicator implements SerialDataEventListener {
 		data[1] = new String("B100:0:1:@");
 		data[2] = new String("B100:0");
 		data[3] = new String("B101:0");
-		data[4] = new String("B100:0");
+		data[4] = new String("S80:0");
 		data[5] = new String("B100:0");
 		data[6] = new String("B100:0");
 		data[7] = new ShutdownEvent();
@@ -147,9 +149,21 @@ class ArduinoCommunicator implements SerialDataEventListener {
 		log.debug("Command received: " + receivedData);
 		command = receivedData.split(":");
 		log.debug("State info in command: " + command[1]);
-		switch (command[0].substring(0, 1)) {
+		String ifaceType = command[0].substring(0, 1);
+		String ifaceIndex = command[0].substring(1);
+		String payload = command[1];
+		switch (ifaceType) {
 		case "B":
-			buttonPressed(command[0].substring(1));
+			buttonPressed(ifaceIndex);
+			break;
+		case "S":
+			switchOperated(ifaceIndex,payload);
+			break;
+		case "R":
+			rotaryEncoderChanged(ifaceIndex);
+			break;
+		case "M":
+			masterCaution();
 			break;
 		default:
 			log.info("Unable to decode. Discarding");
@@ -158,13 +172,40 @@ class ArduinoCommunicator implements SerialDataEventListener {
 
 	}
 
+	private void masterCaution() {
+		//ignore all substrings
+		MasterCautionPressedEvent mcpe = new MasterCautionPressedEvent();
+		notifyListeners(mcpe);
+	}
+
+	private void rotaryEncoderChanged(String substring) {
+		//int buttonPressed = Integer.decode(substring);
+		RotaryEncoderEvent ree = new RotaryEncoderEvent();
+		notifyListeners(ree);
+		
+	}
+
+	private void switchOperated(String substring, String newValue) {
+		int switchOperated = Integer.decode(substring);
+		log.debug("Switch " + switchOperated + " operated. New value: " + newValue);
+		SwitchEvent se = new SwitchEvent(switchOperated, newValue);
+		notifyListeners(se);
+		
+	}
+
 	private void buttonPressed(String substring) {
 		// substring is 1, 10 or 100
 		int buttonPressed = Integer.decode(substring);
 		log.debug("Button " + buttonPressed + " pressed.");
-		SoundEvent se = new SoundEvent(new SpaceShipMapping().getButton(buttonPressed));
+		ButtonPressEvent bpe = new ButtonPressEvent(buttonPressed);
+		notifyListeners(bpe);
+		//SoundEvent se = new SoundEvent(new SpaceShipMapping().getButton(buttonPressed));
+
+	}
+	private void notifyListeners(SpaceEvent event)
+	{
 		for (SpaceShipController ssc : listeners)
-			ssc.spaceEvent(se);
+			ssc.spaceEvent(event);
 	}
 
 	public void writeSerial(String msg) {

@@ -1,11 +1,12 @@
 /**
  * 
  */
-package nl.andredewaal.home.juluspace;
+package nl.andredewaal.home.juluspace.tasks;
 
 import java.util.TimerTask;
 
-import nl.andredewaal.home.juluspace.events.CountdownEvent;
+import nl.andredewaal.home.juluspace.SpaceShipController;
+import nl.andredewaal.home.juluspace.events.complex.CountdownEvent;
 
 /**
  * @author awaal

@@ -8,6 +8,6 @@ package nl.andredewaal.home.juluspace.events;
  *
  */
 public enum SpaceEventType {
-	STARTUP, SHUTDOWN, LAUNCH, COUNTDOWN, SOUND
+	BUTTON, SWITCH, ROTARY, MASTERCAUTION, STARTUP, SHUTDOWN, LAUNCH, COUNTDOWN, SOUND
 
 }

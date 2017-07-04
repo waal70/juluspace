@@ -1,8 +1,10 @@
 /**
  * 
  */
-package nl.andredewaal.home.juluspace.events;
+package nl.andredewaal.home.juluspace.events.complex;
 
+import nl.andredewaal.home.juluspace.events.SpaceEvent;
+import nl.andredewaal.home.juluspace.events.SpaceEventType;
 import nl.andredewaal.home.juluspace.util.Consts;
 /**
  * @author awaal

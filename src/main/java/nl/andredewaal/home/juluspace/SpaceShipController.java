@@ -9,10 +9,19 @@ import javax.sound.sampled.Clip;
 import org.apache.log4j.Logger;
 
 import nl.andredewaal.home.juluspace.events.SpaceEvent;
+import nl.andredewaal.home.juluspace.tasks.LaunchTask;
 import nl.andredewaal.home.juluspace.util.Consts;
+import nl.andredewaal.home.juluspace.util.ShipStatusMapper;
 
-public class SpaceShipController implements SpaceShipEvent {
+/**
+ * @author awaal
+ * This class is the main "brain" of the SpaceShip. It determines courses of action,
+ * sounds to play, and manages spaceship startup and shutdown.
+ */
+public class SpaceShipController {
 	private static Logger log = Logger.getLogger(SpaceShipController.class);
+
+	private ShipStatusMapper ssm = new ShipStatusMapper();
 
 	private ArduinoCommunicator ac = null;
 	private List<Clip> myclips = new ArrayList<Clip>();
@@ -20,23 +29,21 @@ public class SpaceShipController implements SpaceShipEvent {
 	private boolean launching = false;
 	@SuppressWarnings("unused")
 	private boolean shutdownPending = false;
+
 	public SpaceShipController() {
 
 		// Create an ArduinoCommunicator and register self as listener
 		ac = new ArduinoCommunicator();
 		ac.addListener(this);
-		if (Consts.FAKE) ac.doThing();
+		if (Consts.FAKE)
+			ac.doThing();
 		// END FAKE WINDOWS
 	}
 
-	private void processLaunch()
-	{
-		if (launching)
-		{
+	private void processLaunch() {
+		if (launching) {
 			log.debug("Launch already ongoing, ignoring new request");
-		}
-		else
-		{
+		} else {
 			log.debug("Processing Launch Sequence....");
 			Timer myTimer = new Timer("LaunchTimer");
 			myTimer.schedule(new LaunchTask(this), Consts.LAUNCH_WAIT);
@@ -44,98 +51,116 @@ public class SpaceShipController implements SpaceShipEvent {
 		}
 	}
 
-	@Override
-	public void spaceEvent(String eventData) {
-		// log.info("I received: " + eventData);
-		//processSpaceEvent(eventData);
+	public void spaceEvent(SpaceEvent event) {
+		// if (!shutdownPending) {
+		switch (event.type) {
+		case BUTTON:
+			processButtonPress(event.index);
+			break;
+		case SWITCH:
+			processSwitchChange(event.index);
+			break;
+		case LAUNCH:
+			processLaunch();
+			break;
+		case SOUND:
+			kickOffSoundThread(event.payload);
+			break;
+		case SHUTDOWN:
+			processTERMsignal();
+			break;
+		case COUNTDOWN:
+			kickOffSoundThread(Consts.SND_COUNTDOWN, -0.1f);
+			break;
+		default:
+			kickOffSoundThread(Consts.SND_COMM_CHIRP_OPEN);
+			break;
+		}
+		// }
+		// else
+		// log.debug("Ignoring event because shutdown pending");
 
 	}
-	public void spaceEvent(SpaceEvent event) {
-		//if (!shutdownPending) {
-		switch (event.type) {
-		case LAUNCH: processLaunch();
-				break;
-		case SOUND: kickOffSoundThread(event.payload);
-				break;
-		case SHUTDOWN: processTERMsignal();
-				break;
-		case COUNTDOWN: kickOffSoundThread(Consts.SND_COUNTDOWN, -0.1f);
-				break;
-		default: kickOffSoundThread(Consts.SND_COMM_CHIRP_OPEN);
-				break;
-		}
-		//}
-		//else
-		//	log.debug("Ignoring event because shutdown pending");
+
+	private void processSwitchChange(int index) {
+		ssm.incrementSwitchUsage(index);
+		log.info("========================SWITCH OPERATED!!!" + ssm.getSwitchValue(index));
 		
-		
+	}
+
+	private void processButtonPress(int index) {
+		ssm.incrementButtonPress(index);
+		kickOffSoundThread(ssm.getButton(index));
 	}
 
 	private void processTERMsignal() {
 		shutdownPending = true;
-		log.debug("TERM signal received, will wait a maximum of "+ Consts.TERM_MAX_SLEEP_MULTIPLIER * Consts.TERM_SLEEP_INTERVAL +" ms, now shutting down...");
+		log.debug("TERM signal received, will wait a maximum of "
+				+ Consts.TERM_MAX_SLEEP_MULTIPLIER * Consts.TERM_SLEEP_INTERVAL + " ms, now shutting down...");
 		// al.stopListening();
 		ac.stopListening();
 		log.debug("Told listener to stop receiving events");
 		busy = SpaceShipSound.endSound(myclips);
 		log.debug("Flag BUSY set to FALSE");
-		//new QuindarTone().intro();
-		//Give audible feedback to the user, using the modal setting
-		kickOffSoundThread(Consts.SND_SHUTDOWN,-10.0f,true);
+		// new QuindarTone().intro();
+		// Give audible feedback to the user, using the modal setting
+		kickOffSoundThread(Consts.SND_SHUTDOWN, -10.0f, true);
 		myclips.clear();
 		log.debug("Cleared the backlog of soundfiles");
 		new QuindarTone().outro();
 	}
-	
+
 	/**
-	 * @param soundName The name of the sound file to play
-	 * Method will default to a gain of -10.0f and non-modal sound.
-	 * This means processing will continue and other sound files may be
-	 * stacked on top of this sound
-	 */ 
-	private void kickOffSoundThread(String soundName)
-	{
+	 * @param soundName
+	 *            The name of the sound file to play Method will default to a gain
+	 *            of -10.0f and non-modal sound. This means processing will continue
+	 *            and other sound files may be stacked on top of this sound
+	 */
+	private void kickOffSoundThread(String soundName) {
 		kickOffSoundThread(soundName, -10.0f, false);
 	}
-	
+
 	/**
-	 * @param soundName The name of the sound file to play
-	 * @param gain The volume in the mixer. Negative numbers only, please
-	 * Method will default to a non-modal sound, meaning processing will continue,
-	 * possibly stacking other sound files, while this sound is playing.
+	 * @param soundName
+	 *            The name of the sound file to play
+	 * @param gain
+	 *            The volume in the mixer. Negative numbers only, please Method will
+	 *            default to a non-modal sound, meaning processing will continue,
+	 *            possibly stacking other sound files, while this sound is playing.
 	 */
-	private void kickOffSoundThread(String soundName, float gain)
-	{
+	private void kickOffSoundThread(String soundName, float gain) {
 		kickOffSoundThread(soundName, gain, false);
 	}
 
 	/**
-	 * @param soundName The name of the sound file to play
-	 * @param gain The volume in the mixer. Negative numbers only, please.
-	 * @param modal True when the entire processing should yield to this sound
+	 * @param soundName
+	 *            The name of the sound file to play
+	 * @param gain
+	 *            The volume in the mixer. Negative numbers only, please.
+	 * @param modal
+	 *            True when the entire processing should yield to this sound
 	 */
 	private void kickOffSoundThread(String soundName, float gain, boolean modal) {
 
-		//Check if cleanup needed, let's use a maximum of MAX_CLIP_BACKLOG
+		// Check if cleanup needed, let's use a maximum of MAX_CLIP_BACKLOG
 		if (myclips.size() > Consts.MAX_CLIP_BACKLOG)
 			pruneMyClips();
 		SpaceShipSound ps = new SpaceShipSound();
-		//Only add the clip if the return is not null:
+		// Only add the clip if the return is not null:
 		Clip clipToAdd = ps.play(soundName, true, gain, modal);
 		if (clipToAdd != null)
 			myclips.add(clipToAdd);
 		else
 			log.debug("Ignored clip for: " + soundName);
-		
+
 	}
-	
+
 	/**
-	 * This method will check whether all clips have been finished playing.
-	 * If not, it will wait a certain amount of time, then, it will
-	 * clear the myclips collection so that we may start out afresh...
+	 * This method will check whether all clips have been finished playing. If not,
+	 * it will wait a certain amount of time, then, it will clear the myclips
+	 * collection so that we may start out afresh...
 	 */
-	private void pruneMyClips()
-	{
+	private void pruneMyClips() {
 		log.debug("***********************Pruning. Size before: " + myclips.size());
 		if (!SpaceShipSound.endSound(myclips))
 			myclips.clear();
@@ -145,5 +170,5 @@ public class SpaceShipController implements SpaceShipEvent {
 	public boolean isBusy() {
 		return busy;
 	}
-	
+
 }
