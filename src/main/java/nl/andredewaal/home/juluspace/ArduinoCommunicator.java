@@ -17,9 +17,9 @@ import com.pi4j.io.serial.SerialDataEventListener;
 import com.pi4j.io.serial.SerialFactory;
 import com.pi4j.io.serial.StopBits;
 
-class ArduinoListener implements SerialDataEventListener {
+class ArduinoCommunicator implements SerialDataEventListener {
 
-	private static Logger log = Logger.getLogger(ArduinoListener.class);
+	private static Logger log = Logger.getLogger(ArduinoCommunicator.class);
 	private Serial serialPort = null;
 
 	private List<SpaceShipEvent> listeners = new ArrayList<SpaceShipEvent>();
@@ -28,7 +28,7 @@ class ArduinoListener implements SerialDataEventListener {
 		listeners.add(addThis);
 	}
 
-	public ArduinoListener() {
+	public ArduinoCommunicator() {
 		if (!Consts.FAKE) {
 			serialPort = SerialFactory.createInstance();
 			String osName = System.getProperty("os.name", "").toLowerCase();
@@ -129,8 +129,22 @@ class ArduinoListener implements SerialDataEventListener {
 			sse.spaceEvent(receivedData);
 	}
 
-	public static void writeSerial() {
-
+	public void writeSerial(String msg) {
+		
+		//use outputstream or writeln?
+		if (serialPort != null)
+		{
+			try {
+				serialPort.writeln(msg);
+			} catch (IllegalStateException e) {
+				log.debug("Cannot write to serial port.");
+				log.error(e.getLocalizedMessage());
+			} catch (IOException e) {
+				log.debug("Cannot write to serial port");
+				log.error(e.getLocalizedMessage());
+			}
+			
+		}
 	}
 
 	public void stopListening() {

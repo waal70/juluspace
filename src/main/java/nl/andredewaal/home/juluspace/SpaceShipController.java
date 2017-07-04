@@ -10,17 +10,17 @@ import org.apache.log4j.Logger;
 public class SpaceShipController implements SpaceShipEvent {
 	private static Logger log = Logger.getLogger(SpaceShipController.class);
 
-	private ArduinoListener al = null;
+	private ArduinoCommunicator ac = null;
 	private List<Clip> myclips = new ArrayList<Clip>();
 	private boolean busy = true;
 	private int globalCounter = 0;
 
 	public SpaceShipController() {
 
-		// Create an ArduinoListener and register self as listener
-		al = new ArduinoListener();
-		al.addListener(this);
-		if (Consts.FAKE) al.doThing();
+		// Create an ArduinoCommunicator and register self as listener
+		ac = new ArduinoCommunicator();
+		ac.addListener(this);
+		if (Consts.FAKE) ac.doThing();
 		// END FAKE WINDOWS
 	}
 
@@ -51,7 +51,7 @@ public class SpaceShipController implements SpaceShipEvent {
 	private void processTERMsignal() {
 		log.debug("TERM signal received, will wait a maximum of "+ Consts.TERM_MAX_SLEEP_MULTIPLIER * Consts.TERM_SLEEP_INTERVAL +" ms, now shutting down...");
 		// al.stopListening();
-		al.stopListening();
+		ac.stopListening();
 		log.debug("Told listener to stop receiving events");
 		busy = SpaceShipSound.endSound(myclips);
 		log.debug("Flag BUSY set to FALSE");
