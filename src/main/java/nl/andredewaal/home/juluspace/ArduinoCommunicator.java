@@ -22,6 +22,7 @@ import nl.andredewaal.home.juluspace.events.ShutdownEvent;
 import nl.andredewaal.home.juluspace.events.SoundEvent;
 import nl.andredewaal.home.juluspace.events.SpaceEvent;
 import nl.andredewaal.home.juluspace.util.Consts;
+import nl.andredewaal.home.juluspace.util.SpaceShipMapping;
 
 class ArduinoCommunicator implements SerialDataEventListener {
 
@@ -86,18 +87,18 @@ class ArduinoCommunicator implements SerialDataEventListener {
 	}
 
 	public void doThing() {
-		SpaceEvent[] data = new SpaceEvent[8];
+		Object[] data = new Object[8];
 		data[0] = new LaunchEvent();
-		data[1] = new SoundEvent(Consts.SND_I_AM_HAL);
-		data[2] = new SoundEvent();
-		data[3] = new SoundEvent();
-		data[4] = new SoundEvent();
-		data[5] = new SoundEvent();
-		data[6] = new SoundEvent();
+		data[1] = new String("B100:0:1:@");
+		data[2] = new String("B100:0");
+		data[3] = new String("B101:0");
+		data[4] = new String("B100:0");
+		data[5] = new String("B100:0");
+		data[6] = new String("B100:0");
 		data[7] = new ShutdownEvent();
 
 		for (int i = 0; i < 8; i++) {
-			long randomSeed = (long) (Math.random() * 1000);
+			long randomSeed = (long) (Math.random() * 5000);
 			log.debug("Randomly selected pre-load time for event of " + randomSeed + "ms.");
 			try {
 				Thread.sleep(randomSeed);
@@ -105,36 +106,71 @@ class ArduinoCommunicator implements SerialDataEventListener {
 				log.error(e.getLocalizedMessage());
 				log.error("Regardless of failed sleep, still continuing");
 			}
-			//dataReceived(data[i]);
-			for (SpaceShipController ssc:listeners)
-				ssc.spaceEvent(data[i]);
+			if (data[i].getClass() == String.class)
+				dataReceived((String) data[i]);
+			else {
+				for (SpaceShipController ssc : listeners)
+					ssc.spaceEvent((SpaceEvent) data[i]);
+			}
 		}
+	}
+
+	public void dataReceived(String eventData) {
+		decodeAndNotify(eventData);
 	}
 
 	@Override
 	public void dataReceived(SerialDataEvent event) {
 		String receivedData = null;
-		// IDEA for this method:
-		// read a char (byte) from the serial bus. Full command reached when "\n"
-		// received
-		// This (the "\n") triggers the spaceShipEvent
 		try {
 			receivedData = event.getAsciiString();
 			log.info(receivedData);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Unable to receive message. Discarding.");
+			receivedData = "";
+			event = null;
 		}
-		// notify own listeners:
-		//for (SpaceShipEvent sse : listeners)
-		//	sse.spaceEvent(receivedData);
+		if (receivedData != "")
+			decodeAndNotify(receivedData);
+	}
+
+	/**
+	 * @param receivedData
+	 *            the /n delimited string received on the serial port The method
+	 *            will attempt to deconstruct the message and translate this into
+	 *            events. Button presses always start with 'B' Generic message
+	 *            format is Xnnn:vvv Please note that any follow-up :-signs are
+	 *            discarded
+	 */
+	private void decodeAndNotify(String receivedData) {
+		String[] command = new String[2];
+		log.debug("Command received: " + receivedData);
+		command = receivedData.split(":");
+		log.debug("State info in command: " + command[1]);
+		switch (command[0].substring(0, 1)) {
+		case "B":
+			buttonPressed(command[0].substring(1));
+			break;
+		default:
+			log.info("Unable to decode. Discarding");
+			break;
+		}
+
+	}
+
+	private void buttonPressed(String substring) {
+		// substring is 1, 10 or 100
+		int buttonPressed = Integer.decode(substring);
+		log.debug("Button " + buttonPressed + " pressed.");
+		SoundEvent se = new SoundEvent(new SpaceShipMapping().getButton(buttonPressed));
+		for (SpaceShipController ssc : listeners)
+			ssc.spaceEvent(se);
 	}
 
 	public void writeSerial(String msg) {
-		
-		//use outputstream or writeln?
-		if (serialPort != null)
-		{
+
+		// use outputstream or writeln?
+		if (serialPort != null) {
 			try {
 				serialPort.writeln(msg);
 			} catch (IllegalStateException e) {
@@ -144,7 +180,7 @@ class ArduinoCommunicator implements SerialDataEventListener {
 				log.debug("Cannot write to serial port");
 				log.error(e.getLocalizedMessage());
 			}
-			
+
 		}
 	}
 
