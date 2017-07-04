@@ -17,14 +17,20 @@ import com.pi4j.io.serial.SerialDataEventListener;
 import com.pi4j.io.serial.SerialFactory;
 import com.pi4j.io.serial.StopBits;
 
+import nl.andredewaal.home.juluspace.events.LaunchEvent;
+import nl.andredewaal.home.juluspace.events.ShutdownEvent;
+import nl.andredewaal.home.juluspace.events.SoundEvent;
+import nl.andredewaal.home.juluspace.events.SpaceEvent;
+import nl.andredewaal.home.juluspace.util.Consts;
+
 class ArduinoCommunicator implements SerialDataEventListener {
 
 	private static Logger log = Logger.getLogger(ArduinoCommunicator.class);
 	private Serial serialPort = null;
 
-	private List<SpaceShipEvent> listeners = new ArrayList<SpaceShipEvent>();
+	private List<SpaceShipController> listeners = new ArrayList<SpaceShipController>();
 
-	public void addListener(SpaceShipEvent addThis) {
+	public void addListener(SpaceShipController addThis) {
 		listeners.add(addThis);
 	}
 
@@ -80,34 +86,29 @@ class ArduinoCommunicator implements SerialDataEventListener {
 	}
 
 	public void doThing() {
-		String[] data = new String[8];
-		data[0] = "EVENT 1";
-		data[1] = "EVENT 2";
-		data[2] = "EVENT 3 \n";
-		data[3] = "EVENT 4";
-		data[4] = "EVENT 5";
-		data[5] = "EVENT 6";
-		data[6] = "EVENT 7";
-		data[7] = "EVENT 8";
+		SpaceEvent[] data = new SpaceEvent[8];
+		data[0] = new LaunchEvent();
+		data[1] = new SoundEvent(Consts.SND_I_AM_HAL);
+		data[2] = new SoundEvent();
+		data[3] = new SoundEvent();
+		data[4] = new SoundEvent();
+		data[5] = new SoundEvent();
+		data[6] = new SoundEvent();
+		data[7] = new ShutdownEvent();
 
 		for (int i = 0; i < 8; i++) {
-			dataReceived(data[i]);
+			long randomSeed = (long) (Math.random() * 1000);
+			log.debug("Randomly selected pre-load time for event of " + randomSeed + "ms.");
+			try {
+				Thread.sleep(randomSeed);
+			} catch (InterruptedException e) {
+				log.error(e.getLocalizedMessage());
+				log.error("Regardless of failed sleep, still continuing");
+			}
+			//dataReceived(data[i]);
+			for (SpaceShipController ssc:listeners)
+				ssc.spaceEvent(data[i]);
 		}
-	}
-
-	public void dataReceived(String event) {
-		String receivedData = null;
-		// IDEA for this method:
-		// read a char (byte) from the serial bus. Full command reached when "\n"
-		// received
-		// This (the "\n") triggers the spaceShipEvent
-
-		receivedData = event;
-		log.info(receivedData);
-
-		// notify own listeners:
-		for (SpaceShipEvent sse : listeners)
-			sse.spaceEvent(receivedData);
 	}
 
 	@Override
@@ -125,8 +126,8 @@ class ArduinoCommunicator implements SerialDataEventListener {
 			e.printStackTrace();
 		}
 		// notify own listeners:
-		for (SpaceShipEvent sse : listeners)
-			sse.spaceEvent(receivedData);
+		//for (SpaceShipEvent sse : listeners)
+		//	sse.spaceEvent(receivedData);
 	}
 
 	public void writeSerial(String msg) {

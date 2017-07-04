@@ -2,10 +2,14 @@ package nl.andredewaal.home.juluspace;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
 
 import javax.sound.sampled.Clip;
 
 import org.apache.log4j.Logger;
+
+import nl.andredewaal.home.juluspace.events.SpaceEvent;
+import nl.andredewaal.home.juluspace.util.Consts;
 
 public class SpaceShipController implements SpaceShipEvent {
 	private static Logger log = Logger.getLogger(SpaceShipController.class);
@@ -13,8 +17,9 @@ public class SpaceShipController implements SpaceShipEvent {
 	private ArduinoCommunicator ac = null;
 	private List<Clip> myclips = new ArrayList<Clip>();
 	private boolean busy = true;
-	private int globalCounter = 0;
-
+	private boolean launching = false;
+	@SuppressWarnings("unused")
+	private boolean shutdownPending = false;
 	public SpaceShipController() {
 
 		// Create an ArduinoCommunicator and register self as listener
@@ -24,59 +29,99 @@ public class SpaceShipController implements SpaceShipEvent {
 		// END FAKE WINDOWS
 	}
 
-	private void processSpaceEvent(String data) {
-
-		log.debug("Processing, iteration: " + globalCounter);
-		if (globalCounter == 2)
-			kickOffSoundThread(Consts.SND_I_AM_HAL);
+	private void processLaunch()
+	{
+		if (launching)
+		{
+			log.debug("Launch already ongoing, ignoring new request");
+		}
 		else
-			kickOffSoundThread(Consts.SND_COMM_CHIRP_OPEN);
-		
-		if (globalCounter ==2) new QuindarTone().intro();
-		if (globalCounter ==3) new QuindarTone().outro();
-		globalCounter++;
-
-		if (globalCounter > 7)
-			processTERMsignal();
-
+		{
+			log.debug("Processing Launch Sequence....");
+			Timer myTimer = new Timer("LaunchTimer");
+			myTimer.schedule(new LaunchTask(this), Consts.LAUNCH_WAIT);
+			kickOffSoundThread(Consts.SND_LAUNCH, -12.0f);
+		}
 	}
 
 	@Override
 	public void spaceEvent(String eventData) {
 		// log.info("I received: " + eventData);
-		processSpaceEvent(eventData);
+		//processSpaceEvent(eventData);
 
+	}
+	public void spaceEvent(SpaceEvent event) {
+		//if (!shutdownPending) {
+		switch (event.type) {
+		case LAUNCH: processLaunch();
+				break;
+		case SOUND: kickOffSoundThread(event.payload);
+				break;
+		case SHUTDOWN: processTERMsignal();
+				break;
+		case COUNTDOWN: kickOffSoundThread(Consts.SND_COUNTDOWN, -0.1f);
+				break;
+		default: kickOffSoundThread(Consts.SND_COMM_CHIRP_OPEN);
+				break;
+		}
+		//}
+		//else
+		//	log.debug("Ignoring event because shutdown pending");
+		
+		
 	}
 
 	private void processTERMsignal() {
+		shutdownPending = true;
 		log.debug("TERM signal received, will wait a maximum of "+ Consts.TERM_MAX_SLEEP_MULTIPLIER * Consts.TERM_SLEEP_INTERVAL +" ms, now shutting down...");
 		// al.stopListening();
 		ac.stopListening();
 		log.debug("Told listener to stop receiving events");
 		busy = SpaceShipSound.endSound(myclips);
 		log.debug("Flag BUSY set to FALSE");
+		//new QuindarTone().intro();
+		//Give audible feedback to the user, using the modal setting
+		kickOffSoundThread(Consts.SND_SHUTDOWN,-10.0f,true);
 		myclips.clear();
 		log.debug("Cleared the backlog of soundfiles");
 		new QuindarTone().outro();
 	}
+	
+	/**
+	 * @param soundName The name of the sound file to play
+	 * Method will default to a gain of -10.0f and non-modal sound.
+	 * This means processing will continue and other sound files may be
+	 * stacked on top of this sound
+	 */ 
+	private void kickOffSoundThread(String soundName)
+	{
+		kickOffSoundThread(soundName, -10.0f, false);
+	}
+	
+	/**
+	 * @param soundName The name of the sound file to play
+	 * @param gain The volume in the mixer. Negative numbers only, please
+	 * Method will default to a non-modal sound, meaning processing will continue,
+	 * possibly stacking other sound files, while this sound is playing.
+	 */
+	private void kickOffSoundThread(String soundName, float gain)
+	{
+		kickOffSoundThread(soundName, gain, false);
+	}
 
-	private void kickOffSoundThread(String soundName) {
-
-		long randomSeed = (long) (Math.random() * 1000);
-		log.debug("Randomly selected pre-load time for sound file of " + randomSeed + "ms.");
-		try {
-			Thread.sleep(randomSeed);
-		} catch (InterruptedException e) {
-			log.error(e.getLocalizedMessage());
-			log.error("Regardless of failed sleep, still continuing");
-		}
+	/**
+	 * @param soundName The name of the sound file to play
+	 * @param gain The volume in the mixer. Negative numbers only, please.
+	 * @param modal True when the entire processing should yield to this sound
+	 */
+	private void kickOffSoundThread(String soundName, float gain, boolean modal) {
 
 		//Check if cleanup needed, let's use a maximum of MAX_CLIP_BACKLOG
 		if (myclips.size() > Consts.MAX_CLIP_BACKLOG)
 			pruneMyClips();
 		SpaceShipSound ps = new SpaceShipSound();
 		//Only add the clip if the return is not null:
-		Clip clipToAdd = ps.play(soundName, true, -10.0f);
+		Clip clipToAdd = ps.play(soundName, true, gain, modal);
 		if (clipToAdd != null)
 			myclips.add(clipToAdd);
 		else
@@ -100,5 +145,5 @@ public class SpaceShipController implements SpaceShipEvent {
 	public boolean isBusy() {
 		return busy;
 	}
-
+	
 }

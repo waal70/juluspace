@@ -96,7 +96,7 @@ public class QuindarTone {
 		/*
 		 * Parsing of command-line options takes place...
 		 */
-		float frameLength = (fSampleRate * 1.0f);
+		float frameLength = (fSampleRate * 0.5f);
 		SourceDataLine line = null;
 		DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
 		if (DEBUG) {

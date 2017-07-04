@@ -3,6 +3,7 @@ package nl.andredewaal.home.juluspace;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.sound.sampled.AudioFormat;
@@ -17,6 +18,8 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.apache.log4j.Logger;
+
+import nl.andredewaal.home.juluspace.util.Consts;
 
 /**
  * @author awaal
@@ -41,24 +44,34 @@ public class SpaceShipSound {
 			// loop through all clips and see if one is still running:
 		log.debug("Looping through all active sounds...");
 			int multiplier = 0;
-			for (Clip currentClip : allClips)
+			for (Iterator<Clip> iterator = allClips.iterator(); iterator.hasNext();) {
+				Clip currentClip = iterator.next();
 				while (currentClip.isRunning()) {
 					multiplier++;
 					if (multiplier > Consts.TERM_MAX_SLEEP_MULTIPLIER) {
 						log.debug("Playing will take too long. Forcefully stopping.");
-						break;
+						iterator = null;
+						closeAll(allClips);
+						return false;
 					}
 					log.debug("Waiting for clip: (current/total) ms:(" + currentClip.getMicrosecondPosition() / 1000 + "/"
 							+ currentClip.getMicrosecondLength() / 1000 + ") ms");
-					try {
-						Thread.sleep(Consts.TERM_SLEEP_INTERVAL);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					waitSleep(Consts.TERM_SLEEP_INTERVAL);
 				}
+			}
 			return false;
 		}
+	private static void closeAll(List<Clip> allClips)
+	{
+		for (Iterator<Clip> iterator = allClips.iterator(); iterator.hasNext();) {
+			Clip currentClip = iterator.next();
+			if (currentClip.isOpen()) currentClip.close();
+		}
+	}
+	public Clip play(String soundName, boolean autostart, float gain)
+	{
+		return play(soundName, autostart, gain, false);
+	}
 
 	    /**
 	     * @param soundName The resource that contains the filename to be played. These files
@@ -69,9 +82,10 @@ public class SpaceShipSound {
 	     * @return The Clip instance with the settings pre-configured
 	     * @throws Exception
 	     */
-	    public Clip play(String soundName, boolean autostart, float gain) {
+	    public Clip play(String soundName, boolean autostart, float gain, boolean modal) {
 	    	
 	    	if (gain == 0) gain=-40.0f;
+	    	log.debug("Gain is set to: " + gain);
 	       	InputStream dumbInputstream = null;
 			dumbInputstream = getClass().getResourceAsStream(soundName);
 			InputStream yourfile = new BufferedInputStream(dumbInputstream);
@@ -114,6 +128,26 @@ public class SpaceShipSound {
 			volumeControl.setValue(gain); // .
 			log.debug("Starting clip " + soundName);
 	        if (autostart) clip.start();
+	        if (modal)
+	        {
+	        	log.debug("Modal clip wait sequence START");
+	        	log.debug(clip.isOpen());
+	        	while (clip.isOpen())
+	        	{
+	        		waitSleep(Consts.TERM_SLEEP_INTERVAL);
+					log.debug("In modal clip wait sequence...");
+	        	}
+	        	log.debug("Modal clip wait sequence END");
+	        }
 	        return clip;
+	    }
+	    private static void waitSleep(long millis)
+	    {
+	    	try {
+				Thread.sleep(millis);
+			} catch (InterruptedException e) {
+				log.error("Unable to sleep thread: " + e.getLocalizedMessage());
+			}
+	    	
 	    }
 }
