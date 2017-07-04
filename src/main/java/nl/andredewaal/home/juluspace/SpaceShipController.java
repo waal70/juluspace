@@ -1,7 +1,11 @@
 package nl.andredewaal.home.juluspace;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Timer;
 
 import javax.sound.sampled.Clip;
@@ -9,7 +13,10 @@ import javax.sound.sampled.Clip;
 import org.apache.log4j.Logger;
 
 import nl.andredewaal.home.juluspace.events.SpaceEvent;
+import nl.andredewaal.home.juluspace.events.complex.SoundEvent;
 import nl.andredewaal.home.juluspace.tasks.LaunchTask;
+import nl.andredewaal.home.juluspace.tasks.SurveyInterfaceTask;
+import nl.andredewaal.home.juluspace.util.ButtonInfo;
 import nl.andredewaal.home.juluspace.util.Consts;
 import nl.andredewaal.home.juluspace.util.ShipStatusMapper;
 
@@ -27,7 +34,6 @@ public class SpaceShipController {
 	private List<Clip> myclips = new ArrayList<Clip>();
 	private boolean busy = true;
 	private boolean launching = false;
-	@SuppressWarnings("unused")
 	private boolean shutdownPending = false;
 
 	public SpaceShipController() {
@@ -35,6 +41,8 @@ public class SpaceShipController {
 		// Create an ArduinoCommunicator and register self as listener
 		ac = new ArduinoCommunicator();
 		ac.addListener(this);
+		Timer surveyTimer = new Timer("SurveyTimer");
+		surveyTimer.schedule(new SurveyInterfaceTask(this), 1000, 4000);
 		if (Consts.FAKE)
 			ac.doThing();
 		// END FAKE WINDOWS
@@ -52,7 +60,7 @@ public class SpaceShipController {
 	}
 
 	public void spaceEvent(SpaceEvent event) {
-		// if (!shutdownPending) {
+		if (!shutdownPending) {
 		switch (event.type) {
 		case BUTTON:
 			processButtonPress(event.index);
@@ -76,15 +84,31 @@ public class SpaceShipController {
 			kickOffSoundThread(Consts.SND_COMM_CHIRP_OPEN);
 			break;
 		}
-		// }
-		// else
-		// log.debug("Ignoring event because shutdown pending");
+		 }
+		 else
+		 log.info("Ignoring event because shutdown pending");
 
 	}
 
+	public void surveyInterface()
+	{
+		log.debug("Surveying buttons...");
+		//loop over all buttons. If one of them is pressed more than 3 times, fire event.
+		HashMap<Integer, ButtonInfo> buttonMap = ssm.getButtonMap();
+		Iterator<Entry<Integer, ButtonInfo>> it = buttonMap.entrySet().iterator();
+		while (it.hasNext()) {
+			Entry<Integer, ButtonInfo> pair = it.next();
+			if (pair.getValue().getTimesPressed() > 2)
+			{
+				log.debug("Found button that was pressed more than twice.");
+				pair.getValue().reset();
+				spaceEvent(new SoundEvent(Consts.SND_R2D2));
+			}
+		}
+	}
 	private void processSwitchChange(int index) {
 		ssm.incrementSwitchUsage(index);
-		log.info("========================SWITCH OPERATED!!!" + ssm.getSwitchValue(index));
+		log.info("========================SWITCH OPERATED, new value = " + ssm.getSwitchValue(index));
 		
 	}
 

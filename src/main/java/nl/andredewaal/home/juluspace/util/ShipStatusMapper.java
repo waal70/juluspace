@@ -38,6 +38,11 @@ public class ShipStatusMapper {
 		return temp;
 	}
 	
+	public HashMap<Integer, ButtonInfo> getButtonMap()
+	{
+		return buttonMap;
+	}
+	
 	public int getSwitchValue(int switchNumber)
 	{
 		SwitchInfo si = switchMap.get(switchNumber);

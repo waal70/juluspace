@@ -35,5 +35,6 @@ public final class Consts {
 	public static final String SND_LAUNCH = "/Launch-Sound_Soyuz-Launch.wav";
 	public static final String SND_COUNTDOWN = "/Launch-Sound_Female-Voice-Countdown.wav";
 	public static final String SND_SHUTDOWN = "/640174main_Wheel Stop.wav";
+	public static final String SND_R2D2 ="/R2D2-extra.wav";
 
 }

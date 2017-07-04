@@ -33,7 +33,8 @@ public class SpaceShipMain {
 				break;
 			try {
 				// ssc.wait();
-				Thread.sleep(500);
+				Thread.sleep(1000);
+				//ssc.surveyInterface();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
