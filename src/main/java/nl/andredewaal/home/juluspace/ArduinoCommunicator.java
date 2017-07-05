@@ -33,8 +33,11 @@ class ArduinoCommunicator implements SerialDataEventListener {
 
 	private List<SpaceShipController> listeners = new ArrayList<SpaceShipController>();
 
-	public void addListener(SpaceShipController addThis) {
+	public synchronized void addListener(SpaceShipController addThis) {
 		listeners.add(addThis);
+	}
+	public synchronized void removeListener(SpaceShipController removeThis) {
+		listeners.remove(removeThis);
 	}
 
 	public ArduinoCommunicator() {

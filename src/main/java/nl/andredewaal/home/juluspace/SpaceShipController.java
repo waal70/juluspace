@@ -28,7 +28,21 @@ public class SpaceShipController {
 	private static Logger log = Logger.getLogger(SpaceShipController.class);
 
 	private ShipStatusMapper ssm = new ShipStatusMapper();
+	/**
+	 * Periodically inspects the state of buttons, switches, encoders, etc.
+	 */
+	private Timer launchTimer = new Timer("LaunchTimer");
 	private Timer surveyTimer = new Timer("SurveyTimer");
+	/**
+	 * The timer to sequence events for the Apollo 13 mishap.
+	 * "Houston, we've had a problem"
+	 */
+	//private Timer apollo13Timer = new Timer("Apollo13");
+	
+	/**
+	 * Sequence the events for a simulated lightning strike
+	 */
+	//private Timer lightningStrikeTimer = new Timer("LightningStrike"); 
 
 	private ArduinoCommunicator ac = null;
 	private List<Clip> myclips = new ArrayList<Clip>();
@@ -53,8 +67,7 @@ public class SpaceShipController {
 			log.debug("Launch already ongoing, ignoring new request");
 		} else {
 			log.debug("Processing Launch Sequence....");
-			Timer myTimer = new Timer("LaunchTimer");
-			myTimer.schedule(new LaunchTask(this), Consts.LAUNCH_WAIT);
+			launchTimer.schedule(new LaunchTask(this), Consts.LAUNCH_WAIT);
 			kickOffSoundThread(Consts.SND_LAUNCH, -12.0f);
 		}
 	}
@@ -119,14 +132,14 @@ public class SpaceShipController {
 
 	private void processTERMsignal() {
 		shutdownPending = true;
+		//cancel all timers, otherwise, there will never be an exit:
 		surveyTimer.cancel();
+		launchTimer.cancel();
 		log.debug("TERM signal received, will wait a maximum of "
 				+ Consts.TERM_MAX_SLEEP_MULTIPLIER * Consts.TERM_SLEEP_INTERVAL + " ms, now shutting down...");
-		// al.stopListening();
 		ac.stopListening();
 		log.debug("Told listener to stop receiving events");
 		boolean soundStop = SpaceShipSound.endSound(myclips);
-		// new QuindarTone().intro();
 		// Give audible feedback to the user, using the modal setting
 		kickOffSoundThread(Consts.SND_SHUTDOWN, -10.0f, true);
 		myclips.clear();

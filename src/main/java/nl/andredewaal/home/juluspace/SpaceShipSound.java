@@ -14,6 +14,7 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.DataLine.Info;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineEvent;
+import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -63,9 +64,10 @@ public class SpaceShipSound {
 		}
 	private static void closeAll(List<Clip> allClips)
 	{
-		for (Iterator<Clip> iterator = allClips.iterator(); iterator.hasNext();) {
+		for (Iterator<Clip> iterator = allClips.iterator(); iterator.hasNext();) 
+		{
 			Clip currentClip = iterator.next();
-			if (currentClip.isOpen()) currentClip.close();
+			if (currentClip.isOpen()) currentClip.stop();
 		}
 	}
 	public Clip play(String soundName, boolean autostart, float gain)
@@ -113,8 +115,10 @@ public class SpaceShipSound {
 				{
 				    if(LineEvent.Type.STOP.equals(event.getType())) {
 				    	log.debug("Closing clip because STOP event received");
-				        clip.close();
-				    }
+				    	clip.close();
+				    	clip.removeLineListener((LineListener) this);
+				    	//event.getLine().removeLineListener(event ->);
+			    }
 				});
 			} catch (LineUnavailableException e) {
 				log.error(e.getLocalizedMessage());
@@ -147,7 +151,7 @@ public class SpaceShipSound {
 				Thread.sleep(millis);
 			} catch (InterruptedException e) {
 				log.error("Unable to sleep thread: " + e.getLocalizedMessage());
-				waitSleep(millis);
+				//waitSleep(millis);
 				}
 	    	
 	    }

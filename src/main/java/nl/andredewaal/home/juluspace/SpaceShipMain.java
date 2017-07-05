@@ -9,6 +9,8 @@ import java.io.InputStream;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import nl.andredewaal.home.juluspace.util.Consts;
+
 /**
  * @author awaal
  *
@@ -23,7 +25,7 @@ public class SpaceShipMain {
 	 */
 	public static synchronized void main(String[] args) throws IOException {
 		initLog4J();
-		log.debug("Spaceship START...");
+		log.info("Spaceship START...");
 		new QuindarTone().intro();
 		// process incoming events from the Arduino through the SpaceShipController
 		SpaceShipController ssc = new SpaceShipController();
@@ -32,16 +34,14 @@ public class SpaceShipMain {
 			if (!ssc.isBusy())
 				break;
 			try {
-				// ssc.wait();
-				Thread.sleep(1000);
-				//ssc.surveyInterface();
+				Thread.sleep(Consts.TERM_SLEEP_EXIT);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getLocalizedMessage());
 			}
 		}
-		log.debug(".....Spaceship END");
-		System.exit(0);
+		ssc = null;
+		log.info(".....Spaceship END");
+		//System.exit(0);
 
 	}
 

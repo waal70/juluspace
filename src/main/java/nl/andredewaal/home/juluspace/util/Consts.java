@@ -5,11 +5,12 @@ package nl.andredewaal.home.juluspace.util;
 
 /**
  * @author awaal
- *
+ * This contains various constants for use throughout the program
  */
 public final class Consts {
 	public static final long TERM_SLEEP_INTERVAL = 500;
-	public static final long TERM_MAX_SLEEP_MULTIPLIER = 50; // multiplier times sleep interval is the longest to wait after TERM
+	public static final long TERM_MAX_SLEEP_MULTIPLIER = 5; // multiplier times sleep interval is the longest to wait after TERM
+	public static final long TERM_SLEEP_EXIT = 1000;
 	/**
 	 * Defines the duration of waiting milliseconds before starting countdown
 	 */
@@ -25,7 +26,11 @@ public final class Consts {
 	public static final int OFF = 0;
 	public static final int ON = 1;
 	
-	public static final boolean FAKE = false;
+	/**
+	 * Setting this to true means you are developing. There will be no connection to a
+	 * COM-port, and the program itself will fake in- and outgoing communication
+	 */
+	public static final boolean FAKE = true;
 	
 	/////////SOUND FILES ARE HERE:
 	//TODO: make the soundfiles platform independent, i.e., either take them from a configurable location, OR assume they are in ./soundfiles or something
