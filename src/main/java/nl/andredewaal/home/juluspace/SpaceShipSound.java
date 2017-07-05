@@ -131,8 +131,8 @@ public class SpaceShipSound {
 	        if (modal)
 	        {
 	        	log.debug("Modal clip wait sequence START");
-	        	log.debug(clip.isOpen());
-	        	while (clip.isOpen())
+	        	log.debug(clip.isRunning());
+	        	while (clip.isRunning() | clip.isOpen())
 	        	{
 	        		waitSleep(Consts.TERM_SLEEP_INTERVAL);
 					log.debug("In modal clip wait sequence...");
@@ -147,7 +147,8 @@ public class SpaceShipSound {
 				Thread.sleep(millis);
 			} catch (InterruptedException e) {
 				log.error("Unable to sleep thread: " + e.getLocalizedMessage());
-			}
+				waitSleep(millis);
+				}
 	    	
 	    }
 }

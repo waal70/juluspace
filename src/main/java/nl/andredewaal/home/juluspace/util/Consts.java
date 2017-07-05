@@ -25,7 +25,7 @@ public final class Consts {
 	public static final int OFF = 0;
 	public static final int ON = 1;
 	
-	public static final boolean FAKE = true;
+	public static final boolean FAKE = false;
 	
 	/////////SOUND FILES ARE HERE:
 	//TODO: make the soundfiles platform independent, i.e., either take them from a configurable location, OR assume they are in ./soundfiles or something

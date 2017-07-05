@@ -29,7 +29,10 @@ public class ShipStatusMapper {
 	
 	public String getButton(int buttonNumber)
 	{
-		String temp = buttonMap.get(buttonNumber).getSoundName();
+		ButtonInfo button = buttonMap.get(buttonNumber);
+		String temp = null;
+		if (button != null)
+			temp = buttonMap.get(buttonNumber).getSoundName();
 		if (temp == null)
 		{
 			log.warn("Non-mapped button referenced: " + buttonNumber);

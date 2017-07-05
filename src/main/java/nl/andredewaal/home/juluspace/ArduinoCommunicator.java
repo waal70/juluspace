@@ -100,7 +100,7 @@ class ArduinoCommunicator implements SerialDataEventListener {
 		data[7] = new ShutdownEvent();
 
 		for (int i = 0; i < 8; i++) {
-			long randomSeed = (long) (Math.random() * 5000);
+			long randomSeed = (long) (Math.random() * 10000);
 			log.debug("Randomly selected pre-load time for event of " + randomSeed + "ms.");
 			try {
 				Thread.sleep(randomSeed);
@@ -132,8 +132,15 @@ class ArduinoCommunicator implements SerialDataEventListener {
 			receivedData = "";
 			event = null;
 		}
-		if (receivedData != "")
-			decodeAndNotify(receivedData);
+		//split the string for newline characters. Run decode for each of the strings thus received.
+		String[] newLinesep = new String[2];
+		newLinesep = receivedData.split("\n");
+		if (newLinesep[0] !="")
+			decodeAndNotify(newLinesep[0]);
+		if (newLinesep[1] !="")
+			decodeAndNotify(newLinesep[1]);
+		//if (receivedData != "")
+		//	decodeAndNotify(receivedData);
 	}
 
 	/**
@@ -147,6 +154,25 @@ class ArduinoCommunicator implements SerialDataEventListener {
 	private void decodeAndNotify(String receivedData) {
 		String[] command = new String[2];
 		log.debug("Command received: " + receivedData);
+		if (receivedData.startsWith("BEGIN"))
+		{
+			log.info("Opened serial comms");
+			receivedData = "X000:00";
+		}
+		if (receivedData.startsWith("LAUNCH"))
+		{
+			log.info("Launch detected");
+			for (SpaceShipController ssc : listeners)
+				ssc.spaceEvent(new LaunchEvent());
+			receivedData = "X000:00";
+		}
+		if (receivedData.startsWith("TERM"))
+		{
+			log.info("Launch detected");
+			for (SpaceShipController ssc : listeners)
+				ssc.spaceEvent(new ShutdownEvent());
+			receivedData = "X000:00";
+		}
 		command = receivedData.split(":");
 		log.debug("State info in command: " + command[1]);
 		String ifaceType = command[0].substring(0, 1);

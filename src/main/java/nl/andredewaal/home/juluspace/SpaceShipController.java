@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Timer;
 
@@ -29,6 +28,7 @@ public class SpaceShipController {
 	private static Logger log = Logger.getLogger(SpaceShipController.class);
 
 	private ShipStatusMapper ssm = new ShipStatusMapper();
+	private Timer surveyTimer = new Timer("SurveyTimer");
 
 	private ArduinoCommunicator ac = null;
 	private List<Clip> myclips = new ArrayList<Clip>();
@@ -41,7 +41,7 @@ public class SpaceShipController {
 		// Create an ArduinoCommunicator and register self as listener
 		ac = new ArduinoCommunicator();
 		ac.addListener(this);
-		Timer surveyTimer = new Timer("SurveyTimer");
+		//Timer surveyTimer = new Timer("SurveyTimer");
 		surveyTimer.schedule(new SurveyInterfaceTask(this), 1000, 4000);
 		if (Consts.FAKE)
 			ac.doThing();
@@ -119,19 +119,21 @@ public class SpaceShipController {
 
 	private void processTERMsignal() {
 		shutdownPending = true;
+		surveyTimer.cancel();
 		log.debug("TERM signal received, will wait a maximum of "
 				+ Consts.TERM_MAX_SLEEP_MULTIPLIER * Consts.TERM_SLEEP_INTERVAL + " ms, now shutting down...");
 		// al.stopListening();
 		ac.stopListening();
 		log.debug("Told listener to stop receiving events");
-		busy = SpaceShipSound.endSound(myclips);
-		log.debug("Flag BUSY set to FALSE");
+		boolean soundStop = SpaceShipSound.endSound(myclips);
 		// new QuindarTone().intro();
 		// Give audible feedback to the user, using the modal setting
 		kickOffSoundThread(Consts.SND_SHUTDOWN, -10.0f, true);
 		myclips.clear();
 		log.debug("Cleared the backlog of soundfiles");
 		new QuindarTone().outro();
+		busy = soundStop;
+		log.debug("Busy FLAG set to " + busy);
 	}
 
 	/**
