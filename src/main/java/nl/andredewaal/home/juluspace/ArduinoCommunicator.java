@@ -56,7 +56,7 @@ class ArduinoCommunicator implements SerialDataEventListener {
 				// mac
 				defaultPort = "????";
 			} else {
-				System.out.println("Sorry, your operating system is not supported");
+				log.info("Sorry, your operating system is not supported");
 				return;
 			}
 
@@ -76,7 +76,7 @@ class ArduinoCommunicator implements SerialDataEventListener {
 					.stopBits(StopBits._1).flowControl(FlowControl.NONE);
 
 			serialPort.addListener(this);
-			log.debug("Added listener to port with config: " + config.toString());
+			log.info("Added listener to port with config: " + config.toString());
 			try {
 				serialPort.open(config);
 				serialPort.discardAll();
@@ -86,7 +86,7 @@ class ArduinoCommunicator implements SerialDataEventListener {
 			}
 		} // Production mode
 		else {
-			log.debug("Added listener to port with config: FAKE setup");
+			log.info("Added listener to port with config: FAKE setup");
 		}
 
 	}
@@ -94,12 +94,12 @@ class ArduinoCommunicator implements SerialDataEventListener {
 	public void doThing() {
 		Object[] data = new Object[8];
 		data[0] = new LaunchEvent();
-		data[1] = new String("B100:0:1:@");
-		data[2] = new String("B100:0");
-		data[3] = new String("B101:0");
-		data[4] = new String("S80:0");
-		data[5] = new String("B100:0");
-		data[6] = new String("B100:0");
+		data[1] = "B100:0:1:@";
+		data[2] = "B100:0";
+		data[3] = "B101:0";
+		data[4] = "S80:0";
+		data[5] = "B100:0";
+		data[6] = "B100:0";
 		data[7] = new ShutdownEvent();
 
 		for (int i = 0; i < 8; i++) {
@@ -138,9 +138,9 @@ class ArduinoCommunicator implements SerialDataEventListener {
 		//split the string for newline characters. Run decode for each of the strings thus received.
 		String[] newLinesep = new String[2];
 		newLinesep = receivedData.split("\n");
-		if (newLinesep[0] !="")
+		if (newLinesep[0].isEmpty())
 			decodeAndNotify(newLinesep[0]);
-		if (newLinesep[1] !="")
+		if (newLinesep[1].isEmpty())
 			decodeAndNotify(newLinesep[1]);
 		//if (receivedData != "")
 		//	decodeAndNotify(receivedData);
@@ -156,7 +156,7 @@ class ArduinoCommunicator implements SerialDataEventListener {
 	 */
 	private void decodeAndNotify(String receivedData) {
 		String[] command = new String[2];
-		log.debug("Command received: " + receivedData);
+		log.info("Command received: " + receivedData);
 		if (receivedData.startsWith("BEGIN"))
 		{
 			log.info("Opened serial comms");
@@ -272,7 +272,7 @@ class ArduinoCommunicator implements SerialDataEventListener {
 			}
 
 		} else {
-			log.debug("stopped listening");
+			log.info("Stopped listening");
 		}
 	}
 

@@ -118,6 +118,7 @@ public class Oscillator
 				break;
 
 			case WAVEFORM_SAWTOOTH:
+			default:
 				if (fPeriodPosition < 0.5F)
 				{
 					fValue = 2.0F * fPeriodPosition;

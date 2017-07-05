@@ -98,7 +98,7 @@ public class SpaceShipSound {
 				log.error(e.getLocalizedMessage());
 				return null;
 			}
-			if (stream == null) return null;
+			//if (stream == null) return null;
 			
 			AudioFormat format = stream.getFormat();
 			
@@ -136,7 +136,7 @@ public class SpaceShipSound {
 	        {
 	        	log.debug("Modal clip wait sequence START");
 	        	log.debug(clip.isRunning());
-	        	while (clip.isRunning() | clip.isOpen())
+	        	while (clip.isRunning() || clip.isOpen())
 	        	{
 	        		waitSleep(Consts.TERM_SLEEP_INTERVAL);
 					log.debug("In modal clip wait sequence...");

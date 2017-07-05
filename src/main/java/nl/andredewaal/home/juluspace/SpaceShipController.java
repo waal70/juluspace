@@ -66,7 +66,7 @@ public class SpaceShipController {
 		if (launching) {
 			log.debug("Launch already ongoing, ignoring new request");
 		} else {
-			log.debug("Processing Launch Sequence....");
+			log.info("Processing Launch Sequence....");
 			launchTimer.schedule(new LaunchTask(this), Consts.LAUNCH_WAIT);
 			kickOffSoundThread(Consts.SND_LAUNCH, -12.0f);
 		}
@@ -121,7 +121,7 @@ public class SpaceShipController {
 	}
 	private void processSwitchChange(int index) {
 		ssm.incrementSwitchUsage(index);
-		log.info("========================SWITCH OPERATED, new value = " + ssm.getSwitchValue(index));
+		log.debug("========================SWITCH OPERATED, new value = " + ssm.getSwitchValue(index));
 		
 	}
 
@@ -131,6 +131,7 @@ public class SpaceShipController {
 	}
 
 	private void processTERMsignal() {
+		log.info("TERM signal received");
 		shutdownPending = true;
 		//cancel all timers, otherwise, there will never be an exit:
 		surveyTimer.cancel();

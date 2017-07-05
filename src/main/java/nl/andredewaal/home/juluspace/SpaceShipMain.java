@@ -9,8 +9,6 @@ import java.io.InputStream;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
-import nl.andredewaal.home.juluspace.util.Consts;
-
 /**
  * @author awaal
  *
@@ -34,7 +32,8 @@ public class SpaceShipMain {
 			if (!ssc.isBusy())
 				break;
 			try {
-				Thread.sleep(Consts.TERM_SLEEP_EXIT);
+				Thread.currentThread().join();
+				//Thread.sleep(Consts.TERM_SLEEP_EXIT);
 			} catch (InterruptedException e) {
 				log.error(e.getLocalizedMessage());
 			}
