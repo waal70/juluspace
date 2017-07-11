@@ -34,6 +34,9 @@ public final class Consts {
 	
 	/////////SOUND FILES ARE HERE:
 	//TODO: make the soundfiles platform independent, i.e., either take them from a configurable location, OR assume they are in ./soundfiles or something
+	public static final float VOL_DEFAULT = -20.0f;
+	public static final float VOL_LOUD = -10.1f;
+	public static final float VOL_REDUCED = -22.0f;
 	public static final String SND_I_AM_HAL = "/CIT.wav";
 	public static final String SND_I_AM_HAL2 = "/CIT2.wav";
 	public static final String SND_COMM_CHIRP_OPEN = "/commopen.wav" ;

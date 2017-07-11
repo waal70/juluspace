@@ -68,7 +68,7 @@ public class SpaceShipController {
 		} else {
 			log.info("Processing Launch Sequence....");
 			launchTimer.schedule(new LaunchTask(this), Consts.LAUNCH_WAIT);
-			kickOffSoundThread(Consts.SND_LAUNCH, -12.0f);
+			kickOffSoundThread(Consts.SND_LAUNCH, Consts.VOL_REDUCED);
 		}
 	}
 
@@ -91,7 +91,7 @@ public class SpaceShipController {
 			processTERMsignal();
 			break;
 		case COUNTDOWN:
-			kickOffSoundThread(Consts.SND_COUNTDOWN, -0.1f);
+			kickOffSoundThread(Consts.SND_COUNTDOWN, Consts.VOL_LOUD);
 			break;
 		default:
 			kickOffSoundThread(Consts.SND_COMM_CHIRP_OPEN);
@@ -142,7 +142,7 @@ public class SpaceShipController {
 		log.debug("Told listener to stop receiving events");
 		boolean soundStop = SpaceShipSound.endSound(myclips);
 		// Give audible feedback to the user, using the modal setting
-		kickOffSoundThread(Consts.SND_SHUTDOWN, -10.0f, true);
+		kickOffSoundThread(Consts.SND_SHUTDOWN, Consts.VOL_DEFAULT, true);
 		myclips.clear();
 		log.debug("Cleared the backlog of soundfiles");
 		new QuindarTone().outro();
@@ -157,7 +157,7 @@ public class SpaceShipController {
 	 *            and other sound files may be stacked on top of this sound
 	 */
 	private void kickOffSoundThread(String soundName) {
-		kickOffSoundThread(soundName, -10.0f, false);
+		kickOffSoundThread(soundName, Consts.VOL_DEFAULT, false);
 	}
 
 	/**

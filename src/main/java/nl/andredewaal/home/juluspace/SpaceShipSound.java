@@ -85,7 +85,7 @@ public class SpaceShipSound {
 	     * @throws Exception
 	     */
 	    public Clip play(String soundName, boolean autostart, float gain, boolean modal) {
-	    	
+
 	    	if (gain == 0) gain=-40.0f;
 	    	log.debug("Gain is set to: " + gain);
 	       	InputStream dumbInputstream = null;
@@ -120,7 +120,7 @@ public class SpaceShipSound {
 				    	//event.getLine().removeLineListener(event ->);
 			    }
 				});
-			} catch (LineUnavailableException e) {
+			} catch (LineUnavailableException | IllegalArgumentException e) {
 				log.error(e.getLocalizedMessage());
 			}
 			try {

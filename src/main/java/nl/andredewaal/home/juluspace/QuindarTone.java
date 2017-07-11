@@ -4,12 +4,14 @@
 package nl.andredewaal.home.juluspace;
 
 import java.io.IOException;
+import java.util.Scanner;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 
 import org.apache.log4j.Logger;
@@ -19,6 +21,18 @@ import org.apache.log4j.Logger;
  *
  */
 public class QuindarTone {
+
+	/**
+	 * @param myMixer
+	 */
+	protected QuindarTone() {
+		
+		//This is here to ensure compatibility with the Hifiberry hat
+		for (Mixer.Info currentMixer : AudioSystem.getMixerInfo())
+		{
+			if (currentMixer.getName().contains("plughw")) this.myMixer=currentMixer;
+		}
+	}
 
 	private float introFreq = 2525;
 	private float outroFreq = 2475;
@@ -59,6 +73,7 @@ public class QuindarTone {
 
 	private static final int BUFFER_SIZE = 22000;
 	private static boolean DEBUG = false;
+	private Mixer.Info myMixer = null;
 
 	private byte[] oscData;
 	AudioFormat audioFormat = null;
@@ -66,6 +81,38 @@ public class QuindarTone {
 	float fSampleRate = 44100.0F;
 	float fAmplitude = 0.2F;
 	long playTime = 250;
+	
+	public static  void main(String[] args) {
+		QuindarTone myQT = new QuindarTone();
+		Mixer.Info[] installedMixers = AudioSystem.getMixerInfo();
+        for(int n = 0; n < installedMixers.length; n++) 
+        {
+            log.info("[" + n + "] " + installedMixers[n].toString());
+        }
+        while(myQT.myMixer == null) {
+            int choice;
+            try {
+                log.info("Choose a mixer: ");
+                Scanner s = new Scanner(System.in);
+                choice = s.nextInt();
+                if(choice >= 0 && choice < installedMixers.length)
+                    myQT.myMixer = AudioSystem.getMixer(installedMixers[choice]).getMixerInfo();
+                else
+                    log.error("Invalid Choice!");
+                s.close();
+            } catch(RuntimeException e) {
+                log.error("Please input an integer corresponding to your mixer choice.");
+            }
+        }
+		
+		
+		myQT.intro();
+		myQT.outro();
+		myQT.intro();
+		myQT.outro();
+		
+		
+	}
 
 	public void intro() {
 		long current = System.currentTimeMillis();
@@ -93,19 +140,15 @@ public class QuindarTone {
 	private void play(AudioInputStream osc, long playTimems) {
 		log.debug("QuindarTone play start");
 
-		/*
-		 * Parsing of command-line options takes place...
-		 */
-		float frameLength = (fSampleRate * 0.4f);
+		float frameLength = (fSampleRate * 0.6f);
 		SourceDataLine line = null;
 		DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
-		if (DEBUG) {
+    	if (DEBUG) {
 			for (AudioFormat af : info.getFormats())
 				log.debug("Audioformat supported: " + af.toString());
 		}
-
-		try {
-			line = (SourceDataLine) AudioSystem.getLine(info);
+    	try {
+			line = AudioSystem.getSourceDataLine(audioFormat, myMixer);
 			line.open(audioFormat);
 		} catch (LineUnavailableException e) {
 			log.error("Line unavailable: " + e.getLocalizedMessage());
