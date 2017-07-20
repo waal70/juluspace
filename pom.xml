@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>nl.andredewaal.private.juluspace</groupId>
 	<artifactId>juluspace</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
@@ -26,6 +26,11 @@
 			<version>1.1</version>
 		</dependency>
 	</dependencies>
+	<scm>
+    <connection>scm:git:https://www.github.com/waal70/juluspace.git</connection>
+    <tag>master</tag>
+    <url>http://127.0.0.1/dummy</url>
+  </scm>
 	<build>
 		<plugins>
 			<plugin>
@@ -39,6 +44,8 @@
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
+					<appendAssemblyId>false</appendAssemblyId>
+					<attach>false</attach>
 				</configuration>
 				<executions>
 					<execution>
@@ -50,6 +57,47 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.6.0</version>
+				<executions>
+					<execution>
+						<id>deploy-package</id>
+						<phase>package</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<executable>C:\Users\awaal\Desktop\Coding\deploy.bat</executable>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>buildnumber-maven-plugin</artifactId>
+				<version>1.4</version>
+				<executions>
+					<execution>
+						<id>buildnumber</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>create</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<format>{0,number}</format>
+					<items>
+						<item>buildNumber</item>
+					</items>
+					<doCheck>false</doCheck>
+					<doUpdate>false</doUpdate>
+					<revisionOnScmFailure>unknownbuild</revisionOnScmFailure>
+				</configuration>
+			</plugin>
 		</plugins>
+		<finalName>${project.artifactId}-${project.version}.${buildNumber}</finalName>
 	</build>
 </project>
