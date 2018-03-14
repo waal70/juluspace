@@ -18,6 +18,7 @@ public class ShipStatusMapper {
 	private static Logger log = Logger.getLogger(ShipStatusMapper.class);
 	private HashMap<Integer, ButtonInfo> buttonMap = new HashMap<Integer, ButtonInfo>(); 
 	private HashMap<Integer, SwitchInfo> switchMap = new HashMap<Integer, SwitchInfo>();
+	private HashMap<Integer, RotaryEncoderInfo> rotaryEncoderMap = new HashMap<Integer, RotaryEncoderInfo>();
 
 	/**
 	 * 
@@ -54,6 +55,16 @@ public class ShipStatusMapper {
 			returnValue = switchMap.get(switchNumber).getNewValue();
 		else
 			log.warn("Non-mapped switch referenced: " + switchNumber);
+		return returnValue;
+	}
+	public int getRotaryEncoderValue(int rotaryEncoderNumber)
+	{
+		RotaryEncoderInfo rei = rotaryEncoderMap.get(rotaryEncoderNumber);
+		int returnValue = 0;
+		if (rei != null)
+			returnValue = rotaryEncoderMap.get(rotaryEncoderNumber).getNewValue();
+		else
+			log.warn("Non-mapped rotary encoder referenced: " + rotaryEncoderNumber);
 		return returnValue;
 	}
 	
