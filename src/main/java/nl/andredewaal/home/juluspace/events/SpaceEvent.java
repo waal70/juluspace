@@ -12,5 +12,6 @@ public abstract class SpaceEvent {
 	public SpaceEventType type;
 	public String payload;
 	public int index;
+	public boolean EventProcessed = false;
 
 }

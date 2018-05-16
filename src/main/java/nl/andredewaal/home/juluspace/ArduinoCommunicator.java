@@ -81,7 +81,6 @@ class ArduinoCommunicator implements SerialDataEventListener {
 				serialPort.open(config);
 				serialPort.discardAll();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				log.error(e.getLocalizedMessage());
 			}
 		} // Production mode
@@ -264,10 +263,10 @@ class ArduinoCommunicator implements SerialDataEventListener {
 				serialPort.close();
 
 			} catch (IllegalStateException e) {
-				// TODO Auto-generated catch block
+				
 				log.error(e.getLocalizedMessage());
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				
 				log.error(e.getLocalizedMessage());
 			}
 
