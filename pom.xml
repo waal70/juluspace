@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>nl.andredewaal.private.juluspace</groupId>
 	<artifactId>juluspace</artifactId>
@@ -11,9 +10,9 @@
 	</properties>
 	<dependencies>
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.17</version>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>2.16.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.scream3r</groupId>
@@ -27,10 +26,10 @@
 		</dependency>
 	</dependencies>
 	<scm>
-    <connection>scm:git:https://www.github.com/waal70/juluspace.git</connection>
-    <tag>master</tag>
-    <url>http://127.0.0.1/dummy</url>
-  </scm>
+		<connection>scm:git:https://www.github.com/waal70/juluspace.git</connection>
+		<tag>master</tag>
+		<url>http://127.0.0.1/dummy</url>
+	</scm>
 	<build>
 		<plugins>
 			<plugin>
@@ -57,7 +56,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
+			<!--<plugin> UNCOMMENT THIS to deploy to embedded
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
 				<version>1.6.0</version>
@@ -73,7 +72,7 @@
 				<configuration>
 					<executable>C:\Users\awaal\Desktop\Coding\deploy.bat</executable>
 				</configuration>
-			</plugin>
+			</plugin>-->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>buildnumber-maven-plugin</artifactId>

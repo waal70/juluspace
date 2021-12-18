@@ -14,7 +14,8 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author awaal
@@ -38,7 +39,7 @@ public class QuindarTone {
 	private float outroFreq = 2475;
 	@SuppressWarnings("unused")
 	private long broadcastStatus = 0;
-	private static Logger log = Logger.getLogger(QuindarTone.class);
+	private static Logger log = LogManager.getLogger(QuindarTone.class);
 
 	/*
 	 * OscillatorPlayer.java

@@ -9,7 +9,8 @@ import java.util.Timer;
 
 import javax.sound.sampled.Clip;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import nl.andredewaal.home.juluspace.events.SpaceEvent;
 import nl.andredewaal.home.juluspace.events.complex.SoundEvent;
@@ -25,7 +26,7 @@ import nl.andredewaal.home.juluspace.util.ShipStatusMapper;
  * sounds to play, and manages spaceship startup and shutdown.
  */
 public class SpaceShipController {
-	private static Logger log = Logger.getLogger(SpaceShipController.class);
+	private static Logger log = LogManager.getLogger(SpaceShipController.class);
 
 	private ShipStatusMapper ssm = new ShipStatusMapper();
 	/**

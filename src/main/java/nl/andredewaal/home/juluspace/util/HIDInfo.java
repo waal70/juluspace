@@ -3,14 +3,15 @@
  */
 package nl.andredewaal.home.juluspace.util;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author awaal
  *
  */
 public abstract class HIDInfo {
-	private static Logger log = Logger.getLogger(HIDInfo.class);
+	private static Logger log = LogManager.getLogger(HIDInfo.class);
 	protected String soundName;
 	protected int operationCount = 0;
 	protected int newValue = 0;

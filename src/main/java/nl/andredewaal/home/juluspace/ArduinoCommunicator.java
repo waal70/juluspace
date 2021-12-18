@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.pi4j.io.serial.Baud;
 import com.pi4j.io.serial.DataBits;
@@ -28,7 +29,7 @@ import nl.andredewaal.home.juluspace.util.Consts;
 
 class ArduinoCommunicator implements SerialDataEventListener {
 
-	private static Logger log = Logger.getLogger(ArduinoCommunicator.class);
+	private static Logger log = LogManager.getLogger(ArduinoCommunicator.class);
 	private Serial serialPort = null;
 
 	private List<SpaceShipController> listeners = new ArrayList<SpaceShipController>();

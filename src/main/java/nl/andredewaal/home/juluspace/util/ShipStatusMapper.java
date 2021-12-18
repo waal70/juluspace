@@ -5,7 +5,8 @@ package nl.andredewaal.home.juluspace.util;
 
 import java.util.HashMap;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author awaal
@@ -15,7 +16,7 @@ import org.apache.log4j.Logger;
  */
 public class ShipStatusMapper {
 
-	private static Logger log = Logger.getLogger(ShipStatusMapper.class);
+	private static Logger log = LogManager.getLogger(ShipStatusMapper.class);
 	private HashMap<Integer, ButtonInfo> buttonMap = new HashMap<Integer, ButtonInfo>(); 
 	private HashMap<Integer, SwitchInfo> switchMap = new HashMap<Integer, SwitchInfo>();
 	private HashMap<Integer, RotaryEncoderInfo> rotaryEncoderMap = new HashMap<Integer, RotaryEncoderInfo>();

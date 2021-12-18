@@ -18,7 +18,8 @@ import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import nl.andredewaal.home.juluspace.util.Consts;
 
@@ -29,7 +30,7 @@ import nl.andredewaal.home.juluspace.util.Consts;
  * it will also handle Windows Systems.
  */
 public class SpaceShipSound {
-	private static Logger log = Logger.getLogger(SpaceShipSound.class);
+	private static Logger log = LogManager.getLogger(SpaceShipSound.class);
 	private Clip clip = null;
 	
 	/**
