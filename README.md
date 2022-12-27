@@ -16,3 +16,5 @@ Master Caution button should have a dedicated interface? - I think not, just rem
 Have the Arduino handle some things independently, such as "TERM"?
 Have the Arduino handle some things independently, such as the ligthing of the PTT-button?
 
+## First installation
+Run maven build .. with target "package"
