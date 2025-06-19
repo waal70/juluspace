@@ -34,8 +34,8 @@ class ArduinoCommunicator implements SerialDataEventListener {
 
 	private List<SpaceShipController> listeners = new ArrayList<SpaceShipController>();
 
-	public synchronized void addListener(SpaceShipController addThis) {
-		listeners.add(addThis);
+	public synchronized void addListener(SpaceShipController spaceShipController) {
+		listeners.add(spaceShipController);
 	}
 	public synchronized void removeListener(SpaceShipController removeThis) {
 		listeners.remove(removeThis);
@@ -123,7 +123,6 @@ class ArduinoCommunicator implements SerialDataEventListener {
 	public void dataReceived(String eventData) {
 		decodeAndNotify(eventData);
 	}
-
 	@Override
 	public void dataReceived(SerialDataEvent event) {
 		String receivedData = null;

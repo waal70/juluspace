@@ -17,4 +17,9 @@ Have the Arduino handle some things independently, such as "TERM"?
 Have the Arduino handle some things independently, such as the ligthing of the PTT-button?
 
 ## First installation
+
+If really first install:
+Run Maven - Update Project (update dependencies)
+Run Maven - Project Clean
+
 Run maven build .. with target "package"
